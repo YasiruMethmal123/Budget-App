@@ -10,8 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const Amount = document.getElementById("amount");
     const expenditureValue = document.getElementById("expenditure-value");
     const balanceValue = document.getElementById("balance-amount");
-    const list = document.getElementById("list");
+    const list = document.getElementById("title");
     let tempAmount = 0;
+
+    console.log("All elements:", { totalAmount, userAmount, checkAmountButton, totalAmountButton, productTitle, errorMessage, productTitleError, productCostError, Amount, expenditureValue, balanceValue, list });
+
+    if (!list) console.error("list element (id='title') is missing from HTML!");
+    if (!productTitle) console.error("productTitle element (id='product-title') is missing from HTML!");
+    if (!userAmount) console.error("userAmount element (id='user-amount') is missing from HTML!");
 
     totalAmountButton.addEventListener('click', () => {
         tempAmount = totalAmount.value;
@@ -49,10 +55,16 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const listCreator = (expenseName, expenseValue) => {
+        console.log("listCreator called with:", expenseName, expenseValue);
         let sublistContent = document.createElement("div");
         sublistContent.classList.add("sublist-content", "flex-space");
-        list.appendChild(sublistContent);
-        sublistContent.innerHTML = `<p class="product">${expenseName}</p><p class="amount">${expenseValue}</p>`;
+        if (list) {
+            list.appendChild(sublistContent);
+            sublistContent.innerHTML = `<p class="product">${expenseName}</p><p class="amount">${expenseValue}</p>`;
+            console.log("Appended to list:", list.innerHTML);
+        } else {
+            console.error("list element (id='title') not found!");
+        }
         let editButton = document.createElement("button");
         editButton.classList.add("fa-solid", "fa-pen-to-square", "edit");
         editButton.style.fontSize = "1.2em";
@@ -70,20 +82,39 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     checkAmountButton.addEventListener("click", () => {
-        if (!userAmount || !productTitle || !userAmount.value || !productTitle.value) {
-            if (productCostError) { // Safety check
+        console.log("checkAmountButton clicked!");
+        console.log("productTitle element:", productTitle);
+        console.log("productTitle.value:", productTitle?.value);
+        console.log("userAmount element:", userAmount);
+        console.log("userAmount.value:", userAmount?.value);
+        console.log("tempAmount:", tempAmount);
+
+        if (!productTitle || !userAmount || !productTitle.value || !userAmount.value) {
+            console.log("Validation failed!");
+            if (!productTitle) console.log("Reason: productTitle is null");
+            if (!userAmount) console.log("Reason: userAmount is null");
+            if (productTitle && !productTitle.value) console.log("Reason: productTitle.value is empty");
+            if (userAmount && !userAmount.value) console.log("Reason: userAmount.value is empty");
+            if (productCostError) {
                 productCostError.classList.remove("hide");
             }
             return false;
         }
+
         disableButton(false);
-        let expenditure = parseInt(userAmount.value);
-        let sum = parseInt(expenditureValue.innerText) + expenditure;
+        let expenditure = parseInt(userAmount.value) || 0;
+        let currentExpenditure = parseInt(expenditureValue?.innerText || "0") || 0;
+        let sum = currentExpenditure + expenditure;
+        console.log("expenditure:", expenditure, "sum:", sum);
         expenditureValue.innerText = sum;
         const totalBalance = tempAmount - sum;
+        console.log("totalBalance:", totalBalance);
         balanceValue.innerText = totalBalance;
 
-        listCreator(productTitle.value, userAmount.value);
+        let productName = productTitle.value;
+        let amountValue = userAmount.value;
+        console.log("Calling listCreator with:", productName, amountValue);
+        listCreator(productName, amountValue);
 
         productTitle.value = "";
         userAmount.value = "";
