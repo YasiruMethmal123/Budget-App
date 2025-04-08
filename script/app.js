@@ -101,6 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return false;
         }
 
+    
+
         disableButton(false);
         let expenditure = parseInt(userAmount.value) || 0;
         let currentExpenditure = parseInt(expenditureValue?.innerText || "0") || 0;
